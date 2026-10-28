@@ -20,7 +20,6 @@ app.use(express.json({ limit: '100kb' }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-/* ---------- helpers ---------- */
 
 function setAuthCookie(res, userId) {
   const token = jwt.sign({ uid: userId }, JWT_SECRET, { expiresIn: '7d' });
@@ -32,8 +31,7 @@ function setAuthCookie(res, userId) {
   });
 }
 
-// Every protected route gets req.user.orgId; all queries below filter by it,
-// which is what keeps tenants isolated from each other.
+
 function auth(req, res, next) {
   const token = req.cookies[COOKIE_NAME];
   if (!token) return res.status(401).json({ error: 'Please log in.' });
@@ -111,7 +109,6 @@ function isUniqueError(err) {
   return err && typeof err.code === 'string' && err.code.startsWith('SQLITE_CONSTRAINT');
 }
 
-/* ---------- auth routes ---------- */
 
 app.post('/api/signup', (req, res) => {
   const email = String(req.body.email ?? '').trim().toLowerCase();
@@ -177,7 +174,6 @@ app.get('/api/me', auth, (req, res) => {
   res.json({ user: { id: req.user.id, email: req.user.email }, organization: org });
 });
 
-/* ---------- dashboard ---------- */
 
 app.get('/api/dashboard', auth, (req, res) => {
   const totals = db
@@ -202,7 +198,6 @@ app.get('/api/dashboard', auth, (req, res) => {
   res.json({ ...totals, low_stock: lowStock });
 });
 
-/* ---------- products ---------- */
 
 app.get('/api/products', auth, (req, res) => {
   const q = String(req.query.q ?? '').trim();
@@ -310,7 +305,7 @@ app.delete('/api/products/:id', auth, (req, res) => {
   res.json({ ok: true });
 });
 
-/* ---------- settings ---------- */
+
 
 app.get('/api/settings', auth, (req, res) => {
   const org = db
@@ -329,7 +324,6 @@ app.put('/api/settings', auth, (req, res) => {
   res.json({ ok: true });
 });
 
-/* ---------- fallbacks ---------- */
 
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found.' }));
 
