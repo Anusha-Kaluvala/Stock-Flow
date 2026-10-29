@@ -1,139 +1,55 @@
-# StockFlow Inventory Management System
+# StockFlow MVP
 
-## Project Description
+Minimal multi-tenant inventory app: signup/login, product CRUD, stock adjustments,
+dashboard with low-stock list, and a default low-stock setting.
 
-StockFlow is a lightweight inventory management application designed to help small businesses manage products, monitor stock levels, and identify low-stock items. It provides a simple dashboard and essential inventory management features through a user-friendly interface.
+**Stack:** Node.js + Express, SQLite (better-sqlite3), plain HTML/CSS/JS frontend (no build step).
 
-## Features
+## Run it
 
-User Registration and Login
+Requires Node.js 18 or newer.
 
-Secure user registration and login functionality.
-
-Organization Management
-
-Maintains separate inventory data for each organization.
-
-Product Management
-
-Allows users to add, view, edit, and delete products.
-
-SKU Tracking
-
-Assigns a unique SKU to each product within an organization.
-
-Stock Monitoring
-
-Tracks product quantities and available stock levels.
-
-Low Stock Detection
-
-Identifies products whose quantities are less than or equal to the configured low-stock threshold.
-
-Dashboard
-
-Displays the total number of products, total stock quantity, and low-stock items.
-
-Settings
-
-Allows users to configure the default low-stock threshold.
-
-## Technologies Used
-
-Backend: Node.js and Express.js
-
-Database: SQLite and Better-SQLite3
-
-Authentication: JSON Web Token and bcryptjs
-
-Frontend: HTML, CSS, and JavaScript
-
-## Prerequisites
-
-Node.js version 18 or later
-
-npm package manager
-
-A modern web browser such as Google Chrome or Microsoft Edge
-
-## Installation and Setup
-
-Step 1: Clone the repository.
-
-git clone your-repository-url
-
-Step 2: Navigate to the project directory.
-
-cd stockflow
-
-Step 3: Install the dependencies.
-
+```bash
 npm install
-
-Step 4: Start the development server.
-
-npm run dev
-
-Alternatively, start the application using the following command.
-
 npm start
+```
 
-Step 5: Open the application in your browser.
+Open http://localhost:3000, click "Create an account", and you're in.
 
-http://localhost:3000
+For development with auto-restart: `npm run dev`
 
-Register an account or log in to begin managing inventory.
+## Configuration (optional environment variables)
 
-## Product Information
+| Variable     | Default                     | Purpose                                      |
+|--------------|-----------------------------|----------------------------------------------|
+| PORT         | 3000                        | Server port                                  |
+| JWT_SECRET   | dev-only value              | Signs login cookies. **Required in production** |
+| NODE_ENV     | (unset)                     | Set to `production` to enable secure cookies |
+| DB_PATH      | ./stockflow.db              | SQLite file location                         |
 
-Each product contains a name, SKU, description, available quantity, low-stock threshold, cost price, and selling price.
+## Project layout
 
-## Dashboard Overview
+```
+server.js        Express API + auth + tenant scoping
+db.js            SQLite schema (created automatically on first run)
+public/
+  index.html     App shell + adjust-stock dialog
+  app.js         Router and all screens
+  style.css      Styles
+```
 
-The dashboard provides an overview of inventory by displaying the total number of products, total quantity of items in stock, and the number of low-stock products.
+## How tenant isolation works
 
-A product is considered low stock when its available quantity is less than or equal to its applicable threshold.
+Every API route (except signup/login) runs through the `auth` middleware, which resolves the
+logged-in user's organization. Every product query includes `organization_id = ?`, so one
+organization can never read or change another's data.
 
-## Project Structure
+## Reset the database
 
-stockflow
+Stop the server and delete `stockflow.db` (plus any `-wal` / `-shm` files).
 
-public contains the frontend files
+## Notes / MVP limits
 
-db.js contains database configuration and operations
-
-server.js contains the Express server and backend routes
-
-package.json contains project configuration and dependencies
-
-package-lock.json records dependency versions
-
-README.md contains project documentation
-
-## Security and Data Isolation
-
-Passwords are hashed before storage.
-
-Authentication uses JSON Web Tokens.
-
-Inventory data should be accessible only to authorized users belonging to the relevant organization.
-
-SKU values must be unique within each organization.
-
-## Project Scope
-
-StockFlow focuses on the essential features required for a minimum viable product.
-
-Multi-warehouse management, product variants, third-party integrations, order management, supplier management, email notifications, CSV imports, external API access, advanced role-based access control, audit logs, detailed stock movement history, and billing management are outside the scope of this version.
-
-## Future Enhancements
-
-Future improvements may include advanced inventory reports, bulk product imports, supplier management, stock movement history, and third-party integrations.
-
-## Author
-
-Developed as a software development project to demonstrate inventory management, backend development, database integration, and user authentication.
-
-## License
-
-This project is intended for educational and demonstration purposes. A suitable license can be added if the project is distributed publicly.
+- No password reset (delete the user row or reset by hand in the DB).
+- Hard delete for products, with a confirm dialog.
+- Use HTTPS and a strong JWT_SECRET if you deploy this anywhere public.
