@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StockFlow</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div id="app"></div>
+
+  <dialog id="adjust-dialog">
+    <form method="dialog" id="adjust-form">
+      <h3 id="adjust-title">Adjust stock</h3>
+      <p class="muted" id="adjust-current"></p>
+      <label>Change in units
+        <input type="number" id="adjust-delta" step="1" placeholder="+10 or -3" required />
+      </label>
+      <label>Note (optional)
+        <input type="text" id="adjust-note" maxlength="300" placeholder="e.g. Received shipment" />
+      </label>
+      <p class="error" id="adjust-error" hidden></p>
+      <div class="row end">
+        <button type="button" class="btn ghost" id="adjust-cancel">Cancel</button>
+        <button type="submit" class="btn primary">Apply change</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" role="status" aria-live="polite" hidden></div>
+  <script src="/app.js"></script>
+</body>
+</html>
